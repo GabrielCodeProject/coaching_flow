@@ -110,7 +110,7 @@ Based on the PRD requirements, here are the development tasks:
   - [x] 1.6 Configure environment variables and development scripts
   - [x] 1.7 Set up testing framework (Jest) and initial test configuration
 
-- [ ] 2.0 Authentication & User Management System
+- [x] 2.0 Authentication & User Management System
   - [x] 2.1 Implement user registration with email/password using next-safe-actions
   - [x] 2.2 Create sign-in functionality with session management
   - [x] 2.3 Build user profile management pages and forms
