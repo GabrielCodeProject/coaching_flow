@@ -22,8 +22,13 @@ model User {
     emailVerified   DateTime? // Changed to DateTime? for Auth.js compatibility
     image           String? // Added for Auth.js compatibility
     isActive        Boolean   @default(true)
-    createdAt       DateTime  @default(now())
-    updatedAt       DateTime  @updatedAt
+
+    // Password reset functionality
+    passwordResetToken     String?   @unique
+    passwordResetExpiresAt DateTime?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
     // Existing relationships
     workouts     Workout[]

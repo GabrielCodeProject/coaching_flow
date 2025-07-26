@@ -37,6 +37,9 @@ Based on the PRD requirements, here are the development tasks:
 - `src/components/layout/dashboard-nav.tsx` - Role-based navigation component for dashboard
 - `src/components/layout/user-menu.tsx` - User menu component with profile access and sign out
 - `src/app/(dashboard)/profile/page.tsx` - User profile management page accessible to all user types
+- `src/middleware.ts` - Next.js middleware for role-based route protection and authentication
+- `src/app/unauthorized/page.tsx` - Access denied page with user-friendly interface and navigation
+- `src/lib/rbac.tsx` - Comprehensive role-based access control utilities, hooks, and components
 - `src/hooks/` - Directory for custom React hooks
 - `ENVIRONMENT_SETUP.md` - Comprehensive environment configuration guide
 - `DEVELOPMENT.md` - Complete development workflow documentation
@@ -106,9 +109,9 @@ Based on the PRD requirements, here are the development tasks:
   - [x] 2.1 Implement user registration with email/password using next-safe-actions
   - [x] 2.2 Create sign-in functionality with session management
   - [x] 2.3 Build user profile management pages and forms
-  - [ ] 2.4 Implement role-based access control (Coach/Athlete/Admin)
+  - [x] 2.4 Implement role-based access control (Coach/Athlete/Admin)
   - [ ] 2.5 Create password reset functionality with email integration (Resend)
-  - [ ] 2.6 Build authentication middleware for route protection
+  - [x] 2.6 Build authentication middleware for route protection
   - [ ] 2.7 Create user dashboard layouts for different user types
   - [ ] 2.8 Implement email verification system
 
