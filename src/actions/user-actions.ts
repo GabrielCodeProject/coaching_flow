@@ -1,3 +1,5 @@
+'use server'
+
 import { revalidatePath } from 'next/cache'
 import { createSafeActionClient } from 'next-safe-action'
 import { z } from 'zod'

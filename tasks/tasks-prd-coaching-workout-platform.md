@@ -40,6 +40,11 @@ Based on the PRD requirements, here are the development tasks:
 - `src/middleware.ts` - Next.js middleware for role-based route protection and authentication
 - `src/app/unauthorized/page.tsx` - Access denied page with user-friendly interface and navigation
 - `src/lib/rbac.tsx` - Comprehensive role-based access control utilities, hooks, and components
+- `src/lib/resend.ts` - Resend email service configuration with HTML email templates
+- `src/actions/password-actions.ts` - Server actions for password reset flow with security measures
+- `src/app/(auth)/forgot-password/page.tsx` - Forgot password page with user-friendly form and success states
+- `src/app/(auth)/reset-password/page.tsx` - Reset password page with token validation and password update
+- `prisma/migrations/20250726192410_add_password_reset_fields/` - Database migration for password reset tokens
 - `src/hooks/` - Directory for custom React hooks
 - `ENVIRONMENT_SETUP.md` - Comprehensive environment configuration guide
 - `DEVELOPMENT.md` - Complete development workflow documentation
@@ -110,7 +115,7 @@ Based on the PRD requirements, here are the development tasks:
   - [x] 2.2 Create sign-in functionality with session management
   - [x] 2.3 Build user profile management pages and forms
   - [x] 2.4 Implement role-based access control (Coach/Athlete/Admin)
-  - [ ] 2.5 Create password reset functionality with email integration (Resend)
+  - [x] 2.5 Create password reset functionality with email integration (Resend)
   - [x] 2.6 Build authentication middleware for route protection
   - [ ] 2.7 Create user dashboard layouts for different user types
   - [ ] 2.8 Implement email verification system
