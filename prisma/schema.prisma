@@ -12,28 +12,80 @@ datasource db {
 
 // User model with role-based access and profile information
 model User {
-    id              String   @id @default(cuid())
-    email           String   @unique
+    id              String    @id @default(cuid())
+    email           String    @unique
     password        String
     name            String?
     bio             String?
     profileImageUrl String?
-    role            UserRole @default(ATHLETE)
-    emailVerified   Boolean  @default(false)
-    isActive        Boolean  @default(true)
-    createdAt       DateTime @default(now())
-    updatedAt       DateTime @updatedAt
+    role            UserRole  @default(ATHLETE)
+    emailVerified   DateTime? // Changed to DateTime? for Auth.js compatibility
+    image           String? // Added for Auth.js compatibility
+    isActive        Boolean   @default(true)
+    createdAt       DateTime  @default(now())
+    updatedAt       DateTime  @updatedAt
 
-    // Relationships
+    // Existing relationships
     workouts     Workout[]
     comments     Comment[]
     ratings      Rating[]
     progressLogs ProgressLog[]
     subscription Subscription?
 
+    // Auth.js relationships
+    accounts Account[]
+    sessions Session[]
+
     @@index([email])
     @@index([role])
     @@map("users")
+}
+
+// Auth.js required models
+model Account {
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String?
+    access_token      String?
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String?
+    session_state     String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+    @@map("accounts")
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("sessions")
+}
+
+model VerificationToken {
+    identifier String
+    token      String
+    expires    DateTime
+
+    @@unique([identifier, token])
+    @@map("verification_tokens")
 }
 
 // Workout categories (strength, cardio, yoga, etc.)

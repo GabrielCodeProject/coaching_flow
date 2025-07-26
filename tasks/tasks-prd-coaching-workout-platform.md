@@ -99,7 +99,7 @@ Based on the PRD requirements, here are the development tasks:
 
 - [ ] 2.0 Authentication & User Management System
   - [x] 2.1 Implement user registration with email/password using next-safe-actions
-  - [ ] 2.2 Create sign-in functionality with session management
+  - [x] 2.2 Create sign-in functionality with session management
   - [ ] 2.3 Build user profile management pages and forms
   - [ ] 2.4 Implement role-based access control (Coach/Athlete/Admin)
   - [ ] 2.5 Create password reset functionality with email integration (Resend)
