@@ -32,6 +32,11 @@ Based on the PRD requirements, here are the development tasks:
 - `src/components/workout/` - Directory for workout-related components
 - `src/components/dashboard/` - Directory for dashboard-specific components
 - `src/actions/auth-actions.ts` - Server actions for authentication using next-safe-action
+- `src/actions/user-actions.ts` - Server actions for user profile management with validation
+- `src/components/forms/profile-form.tsx` - Profile edit form component using shadcn-ui with validation
+- `src/components/layout/dashboard-nav.tsx` - Role-based navigation component for dashboard
+- `src/components/layout/user-menu.tsx` - User menu component with profile access and sign out
+- `src/app/(dashboard)/profile/page.tsx` - User profile management page accessible to all user types
 - `src/hooks/` - Directory for custom React hooks
 - `ENVIRONMENT_SETUP.md` - Comprehensive environment configuration guide
 - `DEVELOPMENT.md` - Complete development workflow documentation
@@ -100,7 +105,7 @@ Based on the PRD requirements, here are the development tasks:
 - [ ] 2.0 Authentication & User Management System
   - [x] 2.1 Implement user registration with email/password using next-safe-actions
   - [x] 2.2 Create sign-in functionality with session management
-  - [ ] 2.3 Build user profile management pages and forms
+  - [x] 2.3 Build user profile management pages and forms
   - [ ] 2.4 Implement role-based access control (Coach/Athlete/Admin)
   - [ ] 2.5 Create password reset functionality with email integration (Resend)
   - [ ] 2.6 Build authentication middleware for route protection
