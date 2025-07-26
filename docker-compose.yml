@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  database:
+    image: postgres:16-alpine
+    container_name: coaching_flow_db
+    restart: unless-stopped
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_DB: coaching_flow_db
+      POSTGRES_USER: coaching_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-coaching_secure_password_2024}
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
+    volumes:
+      # Data persistence
+      - postgres_data:/var/lib/postgresql/data
+      # Optional: Custom initialization scripts
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - coaching_network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U coaching_user -d coaching_flow_db']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # pgAdmin for Database Management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: coaching_flow_pgadmin
+    restart: unless-stopped
+    ports:
+      - '5050:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@coaching-flow.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin_password_2024}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      # Pre-configure servers (optional)
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - coaching_network
+
+# Named volumes for data persistence
+volumes:
+  postgres_data:
+    name: coaching_flow_postgres_data
+  pgadmin_data:
+    name: coaching_flow_pgadmin_data
+
+# Custom network for service communication
+networks:
+  coaching_network:
+    name: coaching_flow_network
+    driver: bridge

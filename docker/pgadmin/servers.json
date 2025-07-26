@@ -1,0 +1,24 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Coaching Flow Database",
+      "Group": "Development",
+      "Host": "database",
+      "Port": 5432,
+      "MaintenanceDB": "coaching_flow_db",
+      "Username": "coaching_user",
+      "SSLMode": "prefer",
+      "SSLCert": "",
+      "SSLKey": "",
+      "SSLRootCert": "",
+      "SSLCrl": "",
+      "SSLCompression": 0,
+      "Timeout": 10,
+      "UseSSHTunnel": 0,
+      "TunnelHost": "",
+      "TunnelPort": "22",
+      "TunnelUsername": "",
+      "TunnelAuthentication": 0
+    }
+  }
+}
