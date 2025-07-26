@@ -31,10 +31,13 @@ async function retryDatabaseOperation<T>(
 }
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma), // PrismaAdapter for user/account storage
   session: {
-    strategy: 'database', // Use database sessions
+    strategy: 'jwt', // Use JWT sessions (recommended with database adapters)
     maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60, // 30 days - matches session maxAge
   },
   providers: [
     Credentials({
@@ -81,11 +84,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           return {
             id: user.id,
             email: user.email,
-            name: user.name,
-            image: user.profileImageUrl || user.image,
+            name: user.name || undefined, // Convert null to undefined
+            image: user.profileImageUrl || user.image || undefined,
             role: user.role,
             emailVerified: user.emailVerified,
-            hasSubscription: !!user.subscription?.isActive,
+            hasSubscription: user.subscription?.status === 'ACTIVE',
           }
         } catch (error) {
           // Return null for any authentication error
@@ -96,29 +99,66 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
-      // Add custom data to session from database user
+    async jwt({ token, user, trigger, session }) {
+      // Add user data to JWT token on first sign in
       if (user) {
+        // Store essential user data in token
+        token.id = user.id
+        token.role = user.role
+        token.emailVerified = user.emailVerified
+        token.hasSubscription = user.hasSubscription
+        // Add timestamp for token freshness validation
+        token.lastUpdated = Date.now()
+      }
+
+      // Refresh token data periodically (every 15 minutes)
+      const lastUpdated = token.lastUpdated as number
+      const fifteenMinutes = 15 * 60 * 1000
+      const shouldRefresh = !lastUpdated || Date.now() - lastUpdated > fifteenMinutes
+
+      if (shouldRefresh && token.id) {
         try {
-          // Get fresh user data with subscription using retry logic
-          const dbUser = await retryDatabaseOperation(async () => {
-            return await prisma.user.findUnique({
-              where: { id: user.id },
-              include: {
-                subscription: true,
+          // Fetch fresh user data from database
+          const freshUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            include: {
+              subscription: {
+                select: {
+                  status: true,
+                  currentPeriodEnd: true,
+                  cancelAtPeriodEnd: true,
+                },
               },
-            })
+            },
           })
 
-          if (dbUser) {
-            session.user.id = dbUser.id
-            session.user.role = dbUser.role
-            session.user.emailVerified = dbUser.emailVerified
-            session.user.hasSubscription = !!dbUser.subscription?.isActive
+          if (freshUser) {
+            // Update token with fresh data
+            token.role = freshUser.role
+            token.emailVerified = freshUser.emailVerified
+            token.hasSubscription = freshUser.subscription?.status === 'ACTIVE'
+            token.subscriptionEndDate = freshUser.subscription?.currentPeriodEnd?.getTime()
+            token.lastUpdated = Date.now()
           }
         } catch (error) {
-          console.error('Session callback error:', error)
-          // Continue with existing session data if database fails
+          console.error('Error refreshing user data in JWT:', error)
+          // Keep existing token data if refresh fails
+        }
+      }
+
+      return token
+    },
+    async session({ session, token }) {
+      // Add comprehensive data to session from JWT token
+      if (token && session.user) {
+        session.user.id = token.id as string
+        session.user.role = token.role as string
+        session.user.emailVerified = token.emailVerified as Date | null
+        session.user.hasSubscription = token.hasSubscription as boolean
+
+        // Add subscription metadata if available
+        if (token.subscriptionEndDate) {
+          session.user.subscriptionEndDate = new Date(token.subscriptionEndDate as number)
         }
       }
       return session
@@ -156,10 +196,15 @@ declare module 'next-auth' {
       role: string
       emailVerified?: Date | null
       hasSubscription: boolean
+      subscriptionEndDate?: Date
     }
   }
 
   interface User {
+    id: string
+    email: string
+    name?: string
+    image?: string
     role: string
     emailVerified?: Date | null
     hasSubscription: boolean

@@ -1,6 +1,6 @@
 # Docker PostgreSQL Setup for Coaching Flow
 
-This directory contains the Docker configuration for running PostgreSQL and pgAdmin in development.
+This directory contains the Docker configuration for running PostgreSQL in development.
 
 ## 🚀 Quick Start
 
@@ -18,7 +18,7 @@ NEXTAUTH_SECRET="your-super-secret-key-change-in-production-min-32-chars"
 ### 2. Start Docker Services
 
 ```bash
-# Start PostgreSQL and pgAdmin
+# Start PostgreSQL
 docker-compose up -d
 
 # Check if services are running
@@ -51,13 +51,15 @@ npx prisma studio
 - **Username**: coaching_user
 - **Password**: coaching_secure_db_password_2024!
 
-### pgAdmin Web Interface
+### Prisma Studio
 
-- **URL**: http://localhost:5050
-- **Email**: admin@coaching-flow.local
-- **Password**: admin_secure_password_2024!
+You can access and manage your database using Prisma Studio:
 
-The database server will be pre-configured in pgAdmin as "Coaching Flow Database".
+```bash
+npx prisma studio
+```
+
+This will open a web interface at http://localhost:5555 where you can view and edit your data.
 
 ## 🛠️ Common Commands
 
@@ -94,8 +96,6 @@ docker/
 ├── postgres/
 │   └── init/
 │       └── 01-init.sql    # Database initialization script
-├── pgadmin/
-│   └── servers.json       # pgAdmin server configuration
 └── README.md              # This file
 ```
 
@@ -106,8 +106,7 @@ docker/
 Main Docker Compose configuration with:
 
 - PostgreSQL 16 Alpine (lightweight)
-- pgAdmin 4 for database management
-- Health checks and dependency management
+- Health checks for reliable startup
 - Named volumes for data persistence
 - Custom network for service communication
 
@@ -119,10 +118,6 @@ Initialization script that:
 - Creates necessary extensions (uuid-ossp, pgcrypto)
 - Grants proper permissions to coaching_user
 - Sets up default privileges
-
-### `pgadmin/servers.json`
-
-Pre-configures pgAdmin with the database connection for convenience.
 
 ## 🔒 Security Notes
 
