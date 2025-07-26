@@ -88,7 +88,7 @@ Based on the PRD requirements, here are the development tasks:
 
 ## Tasks
 
-- [ ] 1.0 Project Foundation & Database Setup
+- [x] 1.0 Project Foundation & Database Setup
   - [x] 1.1 Initialize Next.js project with TypeScript and configure essential dependencies
   - [x] 1.2 Set up Prisma ORM with PostgreSQL database connection
   - [x] 1.3 Design and implement complete database schema (users, workouts, exercises, subscriptions, comments, ratings)
@@ -98,7 +98,7 @@ Based on the PRD requirements, here are the development tasks:
   - [x] 1.7 Set up testing framework (Jest) and initial test configuration
 
 - [ ] 2.0 Authentication & User Management System
-  - [ ] 2.1 Implement user registration with email/password using next-safe-actions
+  - [x] 2.1 Implement user registration with email/password using next-safe-actions
   - [ ] 2.2 Create sign-in functionality with session management
   - [ ] 2.3 Build user profile management pages and forms
   - [ ] 2.4 Implement role-based access control (Coach/Athlete/Admin)

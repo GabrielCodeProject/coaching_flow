@@ -6,159 +6,166 @@ import {
   ratingCreateSchema,
   signInSchema,
   changePasswordSchema,
-} from "./workout";
+} from './workout'
 
-describe("Validation Schemas", () => {
-  describe("userRegisterSchema", () => {
-    it("should validate a valid user registration", () => {
+describe('Validation Schemas', () => {
+  describe('userRegisterSchema', () => {
+    it('should validate a valid user registration', () => {
       const validUser = {
-        email: "test@example.com",
-        password: "password123",
-        name: "John Doe",
-        role: "ATHLETE" as const,
-      };
+        email: 'test@example.com',
+        password: 'password123!',
+        name: 'John Doe',
+      }
 
-      expect(() => userRegisterSchema.parse(validUser)).not.toThrow();
-    });
+      expect(() => userRegisterSchema.parse(validUser)).not.toThrow()
+    })
 
-    it("should reject invalid email", () => {
+    it('should reject invalid email', () => {
       const invalidUser = {
-        email: "invalid-email",
-        password: "password123",
-        name: "John Doe",
-      };
+        email: 'invalid-email',
+        password: 'password123!',
+        name: 'John Doe',
+      }
 
-      expect(() => userRegisterSchema.parse(invalidUser)).toThrow();
-    });
+      expect(() => userRegisterSchema.parse(invalidUser)).toThrow()
+    })
 
-    it("should reject short password", () => {
+    it('should reject short password', () => {
       const invalidUser = {
-        email: "test@example.com",
-        password: "123",
-        name: "John Doe",
-      };
+        email: 'test@example.com',
+        password: '123',
+        name: 'John Doe',
+      }
 
-      expect(() => userRegisterSchema.parse(invalidUser)).toThrow();
-    });
-  });
+      expect(() => userRegisterSchema.parse(invalidUser)).toThrow()
+    })
 
-  describe("workoutCreateSchema", () => {
-    it("should validate a valid workout", () => {
+    it('should reject password without special character', () => {
+      const invalidUser = {
+        email: 'test@example.com',
+        password: 'password123',
+        name: 'John Doe',
+      }
+
+      expect(() => userRegisterSchema.parse(invalidUser)).toThrow()
+    })
+  })
+
+  describe('workoutCreateSchema', () => {
+    it('should validate a valid workout', () => {
       const validWorkout = {
-        title: "Full Body Workout",
-        description: "A comprehensive full body workout",
+        title: 'Full Body Workout',
+        description: 'A comprehensive full body workout',
         estimatedDuration: 45,
-        difficulty: "INTERMEDIATE" as const,
-        categoryId: "clh1234567890abcdef",
+        difficulty: 'INTERMEDIATE' as const,
+        categoryId: 'clh1234567890abcdef',
         isPublished: true,
-      };
+      }
 
-      expect(() => workoutCreateSchema.parse(validWorkout)).not.toThrow();
-    });
+      expect(() => workoutCreateSchema.parse(validWorkout)).not.toThrow()
+    })
 
-    it("should reject empty title", () => {
+    it('should reject empty title', () => {
       const invalidWorkout = {
-        title: "",
-        categoryId: "clh1234567890abcdef",
-      };
+        title: '',
+        categoryId: 'clh1234567890abcdef',
+      }
 
-      expect(() => workoutCreateSchema.parse(invalidWorkout)).toThrow();
-    });
+      expect(() => workoutCreateSchema.parse(invalidWorkout)).toThrow()
+    })
 
-    it("should reject invalid duration", () => {
+    it('should reject invalid duration', () => {
       const invalidWorkout = {
-        title: "Test Workout",
+        title: 'Test Workout',
         estimatedDuration: 500, // Too long
-        categoryId: "clh1234567890abcdef",
-      };
+        categoryId: 'clh1234567890abcdef',
+      }
 
-      expect(() => workoutCreateSchema.parse(invalidWorkout)).toThrow();
-    });
-  });
+      expect(() => workoutCreateSchema.parse(invalidWorkout)).toThrow()
+    })
+  })
 
-  describe("exerciseCreateSchema", () => {
-    it("should validate a valid exercise", () => {
+  describe('exerciseCreateSchema', () => {
+    it('should validate a valid exercise', () => {
       const validExercise = {
-        name: "Push-ups",
-        description: "Classic upper body exercise",
-        muscleGroups: ["chest", "triceps", "shoulders"],
-        difficulty: "BEGINNER" as const,
-      };
+        name: 'Push-ups',
+        description: 'Classic upper body exercise',
+        muscleGroups: ['chest', 'triceps', 'shoulders'],
+        difficulty: 'BEGINNER' as const,
+      }
 
-      expect(() => exerciseCreateSchema.parse(validExercise)).not.toThrow();
-    });
+      expect(() => exerciseCreateSchema.parse(validExercise)).not.toThrow()
+    })
 
-    it("should reject exercise without muscle groups", () => {
+    it('should reject exercise without muscle groups', () => {
       const invalidExercise = {
-        name: "Push-ups",
+        name: 'Push-ups',
         muscleGroups: [],
-      };
+      }
 
-      expect(() => exerciseCreateSchema.parse(invalidExercise)).toThrow();
-    });
-  });
+      expect(() => exerciseCreateSchema.parse(invalidExercise)).toThrow()
+    })
+  })
 
-  describe("ratingCreateSchema", () => {
-    it("should validate a valid rating", () => {
+  describe('ratingCreateSchema', () => {
+    it('should validate a valid rating', () => {
       const validRating = {
         rating: 4,
-        workoutId: "clh1234567890abcdef",
-      };
+        workoutId: 'clh1234567890abcdef',
+      }
 
-      expect(() => ratingCreateSchema.parse(validRating)).not.toThrow();
-    });
+      expect(() => ratingCreateSchema.parse(validRating)).not.toThrow()
+    })
 
-    it("should reject rating outside 1-5 range", () => {
+    it('should reject rating outside 1-5 range', () => {
       const invalidRating = {
         rating: 6,
-        workoutId: "clh1234567890abcdef",
-      };
+        workoutId: 'clh1234567890abcdef',
+      }
 
-      expect(() => ratingCreateSchema.parse(invalidRating)).toThrow();
-    });
-  });
+      expect(() => ratingCreateSchema.parse(invalidRating)).toThrow()
+    })
+  })
 
-  describe("changePasswordSchema", () => {
-    it("should validate matching passwords", () => {
+  describe('changePasswordSchema', () => {
+    it('should validate matching passwords', () => {
       const validPasswordChange = {
-        currentPassword: "oldpassword",
-        newPassword: "newpassword123",
-        confirmPassword: "newpassword123",
-      };
+        currentPassword: 'oldpassword',
+        newPassword: 'newpassword123',
+        confirmPassword: 'newpassword123',
+      }
 
-      expect(() =>
-        changePasswordSchema.parse(validPasswordChange)
-      ).not.toThrow();
-    });
+      expect(() => changePasswordSchema.parse(validPasswordChange)).not.toThrow()
+    })
 
-    it("should reject non-matching passwords", () => {
+    it('should reject non-matching passwords', () => {
       const invalidPasswordChange = {
-        currentPassword: "oldpassword",
-        newPassword: "newpassword123",
-        confirmPassword: "differentpassword",
-      };
+        currentPassword: 'oldpassword',
+        newPassword: 'newpassword123',
+        confirmPassword: 'differentpassword',
+      }
 
-      expect(() => changePasswordSchema.parse(invalidPasswordChange)).toThrow();
-    });
-  });
+      expect(() => changePasswordSchema.parse(invalidPasswordChange)).toThrow()
+    })
+  })
 
-  describe("signInSchema", () => {
-    it("should validate valid sign in credentials", () => {
+  describe('signInSchema', () => {
+    it('should validate valid sign in credentials', () => {
       const validSignIn = {
-        email: "test@example.com",
-        password: "password123",
-      };
+        email: 'test@example.com',
+        password: 'password123',
+      }
 
-      expect(() => signInSchema.parse(validSignIn)).not.toThrow();
-    });
+      expect(() => signInSchema.parse(validSignIn)).not.toThrow()
+    })
 
-    it("should reject invalid email format", () => {
+    it('should reject invalid email format', () => {
       const invalidSignIn = {
-        email: "not-an-email",
-        password: "password123",
-      };
+        email: 'not-an-email',
+        password: 'password123',
+      }
 
-      expect(() => signInSchema.parse(invalidSignIn)).toThrow();
-    });
-  });
-});
+      expect(() => signInSchema.parse(invalidSignIn)).toThrow()
+    })
+  })
+})
