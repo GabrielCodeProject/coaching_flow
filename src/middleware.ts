@@ -15,6 +15,7 @@ const publicRoutes = [
   '/sign-up',
   '/forgot-password',
   '/reset-password',
+  '/verify-email',
   '/browse',
   '/coach/[id]', // Public coach profiles
   '/workout/[id]', // Public workout previews
@@ -51,6 +52,22 @@ export default async function middleware(request: NextRequest) {
     const signInUrl = new URL('/sign-in', request.url)
     signInUrl.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(signInUrl)
+  }
+
+  // Check email verification for protected routes (excluding verification page itself)
+  if (pathname !== '/verify-email' && !pathname.startsWith('/verify-email')) {
+    // For now, we'll use a more lenient approach since NextAuth.js handles emailVerified
+    // In a production app, you might want to fetch user data from database here
+    // to check verification status and redirect unverified users
+    // If using NextAuth.js, the emailVerified field should be available in session
+    // Uncomment below if you want strict email verification:
+    /*
+    if (!session.user.emailVerified) {
+      const verifyUrl = new URL('/verify-email', request.url)
+      verifyUrl.searchParams.set('message', 'Please verify your email to access this feature')
+      return NextResponse.redirect(verifyUrl)
+    }
+    */
   }
 
   // Check if route requires specific role

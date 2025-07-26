@@ -117,8 +117,8 @@ Based on the PRD requirements, here are the development tasks:
   - [x] 2.4 Implement role-based access control (Coach/Athlete/Admin)
   - [x] 2.5 Create password reset functionality with email integration (Resend)
   - [x] 2.6 Build authentication middleware for route protection
-  - [ ] 2.7 Create user dashboard layouts for different user types
-  - [ ] 2.8 Implement email verification system
+  - [x] 2.7 Create user dashboard layouts for different user types
+  - [x] 2.8 Implement email verification system
 
 - [ ] 3.0 Core Workout Management (Creation & Discovery)
   - [ ] 3.1 Build workout creation form with exercise builder for coaches

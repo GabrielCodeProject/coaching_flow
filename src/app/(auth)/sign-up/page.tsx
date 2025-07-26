@@ -26,16 +26,14 @@ export default function SignUpPage() {
   })
 
   const { execute, status } = useAction(signUpAction, {
-    onSuccess: data => {
-      if (data.success) {
-        toast.success(data.message)
-        toast.info('Please choose a subscription to access workouts')
-        // Redirect to subscription page after successful registration
-        router.push('/athlete/subscription')
-      }
+    onSuccess: () => {
+      toast.success('Account created successfully! Please check your email to verify your account.')
+      toast.info('Check your email inbox and click the verification link to activate your account')
+      // Redirect to verify-email page with instructions
+      router.push('/verify-email?message=Check your email for verification instructions')
     },
-    onError: error => {
-      toast.error(error.serverError || 'Failed to create account')
+    onError: () => {
+      toast.error('Failed to create account')
     },
   })
 

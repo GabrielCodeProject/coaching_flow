@@ -1,388 +1,337 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-// User model with role-based access and profile information
 model User {
-    id              String    @id @default(cuid())
-    email           String    @unique
-    password        String
-    name            String?
-    bio             String?
-    profileImageUrl String?
-    role            UserRole  @default(ATHLETE)
-    emailVerified   DateTime? // Changed to DateTime? for Auth.js compatibility
-    image           String? // Added for Auth.js compatibility
-    isActive        Boolean   @default(true)
+  id                         String        @id @default(cuid())
+  email                      String        @unique
+  password                   String
+  name                       String?
+  bio                        String?
+  profileImageUrl            String?
+  role                       UserRole      @default(ATHLETE)
+  emailVerified              DateTime?
+  image                      String?
+  isActive                   Boolean       @default(true)
+  createdAt                  DateTime      @default(now())
+  updatedAt                  DateTime      @updatedAt
+  passwordResetExpiresAt     DateTime?
+  passwordResetToken         String?       @unique
+  emailVerificationExpiresAt DateTime?
+  emailVerificationToken     String?       @unique
+  accounts                   Account[]
+  comments                   Comment[]
+  progressLogs               ProgressLog[]
+  ratings                    Rating[]
+  sessions                   Session[]
+  subscription               Subscription?
+  workouts                   Workout[]
 
-    // Password reset functionality
-    passwordResetToken     String?   @unique
-    passwordResetExpiresAt DateTime?
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    // Existing relationships
-    workouts     Workout[]
-    comments     Comment[]
-    ratings      Rating[]
-    progressLogs ProgressLog[]
-    subscription Subscription?
-
-    // Auth.js relationships
-    accounts Account[]
-    sessions Session[]
-
-    @@index([email])
-    @@index([role])
-    @@map("users")
+  @@index([email])
+  @@index([role])
+  @@map("users")
 }
 
-// Auth.js required models
 model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String?
-    access_token      String?
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String?
-    session_state     String?
+  id                String   @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@unique([provider, providerAccountId])
-    @@map("accounts")
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@map("sessions")
+  @@map("sessions")
 }
 
 model VerificationToken {
-    identifier String
-    token      String
-    expires    DateTime
+  identifier String
+  token      String
+  expires    DateTime
 
-    @@unique([identifier, token])
-    @@map("verification_tokens")
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
-// Workout categories (strength, cardio, yoga, etc.)
 model Category {
-    id          String   @id @default(cuid())
-    name        String   @unique
-    slug        String   @unique
-    description String?
-    imageUrl    String?
-    isActive    Boolean  @default(true)
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  imageUrl    String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workouts    Workout[]
 
-    // Relationships
-    workouts Workout[]
-
-    @@index([slug])
-    @@index([isActive])
-    @@map("categories")
+  @@index([slug])
+  @@index([isActive])
+  @@map("categories")
 }
 
-// Equipment types for filtering and requirements
 model Equipment {
-    id          String   @id @default(cuid())
-    name        String   @unique
-    description String?
-    imageUrl    String?
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id               String             @id @default(cuid())
+  name             String             @unique
+  description      String?
+  imageUrl         String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  exercises        Exercise[]
+  workoutEquipment WorkoutEquipment[]
 
-    // Relationships
-    exercises        Exercise[]
-    workoutEquipment WorkoutEquipment[]
-
-    @@index([name])
-    @@map("equipment")
+  @@index([name])
+  @@map("equipment")
 }
 
-// Reusable exercise library
 model Exercise {
-    id           String          @id @default(cuid())
-    name         String
-    description  String?
-    instructions String?
-    videoUrl     String?
-    imageUrl     String?
-    muscleGroups String[] // Array of muscle groups
-    equipmentId  String?
-    difficulty   DifficultyLevel @default(BEGINNER)
-    createdBy    String // User ID of creator
-    isPublic     Boolean         @default(true)
-    createdAt    DateTime        @default(now())
-    updatedAt    DateTime        @updatedAt
+  id               String            @id @default(cuid())
+  name             String
+  description      String?
+  instructions     String?
+  videoUrl         String?
+  imageUrl         String?
+  muscleGroups     String[]
+  equipmentId      String?
+  difficulty       DifficultyLevel   @default(BEGINNER)
+  createdBy        String
+  isPublic         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  equipment        Equipment?        @relation(fields: [equipmentId], references: [id])
+  workoutExercises WorkoutExercise[]
 
-    // Relationships
-    equipment        Equipment?        @relation(fields: [equipmentId], references: [id])
-    workoutExercises WorkoutExercise[]
-
-    @@index([name])
-    @@index([muscleGroups])
-    @@index([difficulty])
-    @@index([isPublic])
-    @@map("exercises")
+  @@index([name])
+  @@index([muscleGroups])
+  @@index([difficulty])
+  @@index([isPublic])
+  @@map("exercises")
 }
 
-// Main workout plans created by coaches
 model Workout {
-    id                String          @id @default(cuid())
-    title             String
-    slug              String          @unique
-    description       String?
-    instructions      String?
-    imageUrl          String?
-    videoUrl          String?
-    estimatedDuration Int? // Duration in minutes
-    difficulty        DifficultyLevel @default(BEGINNER)
-    coachId           String
-    categoryId        String
-    isPublished       Boolean         @default(false)
-    isPublic          Boolean         @default(true)
-    viewCount         Int             @default(0)
-    createdAt         DateTime        @default(now())
-    updatedAt         DateTime        @updatedAt
+  id                String             @id @default(cuid())
+  title             String
+  slug              String             @unique
+  description       String?
+  instructions      String?
+  imageUrl          String?
+  videoUrl          String?
+  estimatedDuration Int?
+  difficulty        DifficultyLevel    @default(BEGINNER)
+  coachId           String
+  categoryId        String
+  isPublished       Boolean            @default(false)
+  isPublic          Boolean            @default(true)
+  viewCount         Int                @default(0)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  comments          Comment[]
+  progressLogs      ProgressLog[]
+  ratings           Rating[]
+  workoutEquipment  WorkoutEquipment[]
+  workoutExercises  WorkoutExercise[]
+  workoutTags       WorkoutTag[]
+  category          Category           @relation(fields: [categoryId], references: [id])
+  coach             User               @relation(fields: [coachId], references: [id], onDelete: Cascade)
 
-    // Relationships
-    coach            User               @relation(fields: [coachId], references: [id], onDelete: Cascade)
-    category         Category           @relation(fields: [categoryId], references: [id])
-    workoutExercises WorkoutExercise[]
-    workoutTags      WorkoutTag[]
-    workoutEquipment WorkoutEquipment[]
-    comments         Comment[]
-    ratings          Rating[]
-    progressLogs     ProgressLog[]
-
-    @@index([slug])
-    @@index([coachId])
-    @@index([categoryId])
-    @@index([difficulty])
-    @@index([isPublished])
-    @@index([isPublic])
-    @@map("workouts")
+  @@index([slug])
+  @@index([coachId])
+  @@index([categoryId])
+  @@index([difficulty])
+  @@index([isPublished])
+  @@index([isPublic])
+  @@map("workouts")
 }
 
-// Junction table for workout exercises with specific sets/reps
 model WorkoutExercise {
-    id         String   @id @default(cuid())
-    workoutId  String
-    exerciseId String
-    order      Int // Order within the workout
-    sets       Int?
-    reps       String? // Can be "10-12" or "30 seconds"
-    weight     String? // Can be "bodyweight" or "15kg"
-    restTime   Int? // Rest time in seconds
-    notes      String?
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
+  id         String   @id @default(cuid())
+  workoutId  String
+  exerciseId String
+  order      Int
+  sets       Int?
+  reps       String?
+  weight     String?
+  restTime   Int?
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  workout    Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
-    // Relationships
-    workout  Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-    exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
-
-    @@unique([workoutId, exerciseId, order])
-    @@index([workoutId])
-    @@index([exerciseId])
-    @@map("workout_exercises")
+  @@unique([workoutId, exerciseId, order])
+  @@index([workoutId])
+  @@index([exerciseId])
+  @@map("workout_exercises")
 }
 
-// Tags for body parts, workout types, etc.
 model Tag {
-    id          String   @id @default(cuid())
-    name        String   @unique
-    slug        String   @unique
-    type        TagType  @default(GENERAL)
-    description String?
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id          String       @id @default(cuid())
+  name        String       @unique
+  slug        String       @unique
+  type        TagType      @default(GENERAL)
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workoutTags WorkoutTag[]
 
-    // Relationships
-    workoutTags WorkoutTag[]
-
-    @@index([slug])
-    @@index([type])
-    @@map("tags")
+  @@index([slug])
+  @@index([type])
+  @@map("tags")
 }
 
-// Junction table for workout tags
 model WorkoutTag {
-    id        String   @id @default(cuid())
-    workoutId String
-    tagId     String
-    createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  workoutId String
+  tagId     String
+  createdAt DateTime @default(now())
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  workout   Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
-    // Relationships
-    workout Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-    tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-    @@unique([workoutId, tagId])
-    @@index([workoutId])
-    @@index([tagId])
-    @@map("workout_tags")
+  @@unique([workoutId, tagId])
+  @@index([workoutId])
+  @@index([tagId])
+  @@map("workout_tags")
 }
 
-// Junction table for workout equipment requirements
 model WorkoutEquipment {
-    id          String   @id @default(cuid())
-    workoutId   String
-    equipmentId String
-    isRequired  Boolean  @default(true)
-    createdAt   DateTime @default(now())
+  id          String    @id @default(cuid())
+  workoutId   String
+  equipmentId String
+  isRequired  Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  workout     Workout   @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
-    // Relationships
-    workout   Workout   @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-    equipment Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
-
-    @@unique([workoutId, equipmentId])
-    @@index([workoutId])
-    @@index([equipmentId])
-    @@map("workout_equipment")
+  @@unique([workoutId, equipmentId])
+  @@index([workoutId])
+  @@index([equipmentId])
+  @@map("workout_equipment")
 }
 
-// Stripe subscription management
 model Subscription {
-    id                   String             @id @default(cuid())
-    userId               String             @unique
-    stripeSubscriptionId String?            @unique
-    stripeCustomerId     String?
-    status               SubscriptionStatus @default(INACTIVE)
-    priceId              String?
-    currentPeriodStart   DateTime?
-    currentPeriodEnd     DateTime?
-    cancelAtPeriodEnd    Boolean            @default(false)
-    createdAt            DateTime           @default(now())
-    updatedAt            DateTime           @updatedAt
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  stripeSubscriptionId String?            @unique
+  stripeCustomerId     String?
+  status               SubscriptionStatus @default(INACTIVE)
+  priceId              String?
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    // Relationships
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@index([userId])
-    @@index([status])
-    @@index([stripeSubscriptionId])
-    @@map("subscriptions")
+  @@index([userId])
+  @@index([status])
+  @@index([stripeSubscriptionId])
+  @@map("subscriptions")
 }
 
-// Comment system for workouts
 model Comment {
-    id        String   @id @default(cuid())
-    content   String
-    workoutId String
-    userId    String
-    parentId  String? // For reply threads
-    isEdited  Boolean  @default(false)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String    @id @default(cuid())
+  content   String
+  workoutId String
+  userId    String
+  parentId  String?
+  isEdited  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workout   Workout   @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
-    // Relationships
-    workout Workout   @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-    user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
-    replies Comment[] @relation("CommentReplies")
-
-    @@index([workoutId])
-    @@index([userId])
-    @@index([parentId])
-    @@map("comments")
+  @@index([workoutId])
+  @@index([userId])
+  @@index([parentId])
+  @@map("comments")
 }
 
-// Rating system for workouts
 model Rating {
-    id        String   @id @default(cuid())
-    rating    Int // 1-5 star rating
-    workoutId String
-    userId    String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  rating    Int
+  workoutId String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workout   Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
-    // Relationships
-    workout Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@unique([workoutId, userId])
-    @@index([workoutId])
-    @@index([userId])
-    @@index([rating])
-    @@map("ratings")
+  @@unique([workoutId, userId])
+  @@index([workoutId])
+  @@index([userId])
+  @@index([rating])
+  @@map("ratings")
 }
 
-// Progress tracking for athletes
 model ProgressLog {
-    id          String   @id @default(cuid())
-    userId      String
-    workoutId   String
-    completedAt DateTime
-    duration    Int? // Duration in minutes
-    notes       String?
-    difficulty  Int? // User's perceived difficulty 1-10
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id          String   @id @default(cuid())
+  userId      String
+  workoutId   String
+  completedAt DateTime
+  duration    Int?
+  notes       String?
+  difficulty  Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workout     Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
-    // Relationships
-    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    workout Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-
-    @@index([userId])
-    @@index([workoutId])
-    @@index([completedAt])
-    @@map("progress_logs")
+  @@index([userId])
+  @@index([workoutId])
+  @@index([completedAt])
+  @@map("progress_logs")
 }
 
-// Enums
 enum UserRole {
-    ATHLETE
-    COACH
-    ADMIN
+  ATHLETE
+  COACH
+  ADMIN
 }
 
 enum DifficultyLevel {
-    BEGINNER
-    INTERMEDIATE
-    ADVANCED
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
 }
 
 enum TagType {
-    BODY_PART
-    EQUIPMENT
-    WORKOUT_TYPE
-    GENERAL
+  BODY_PART
+  EQUIPMENT
+  WORKOUT_TYPE
+  GENERAL
 }
 
 enum SubscriptionStatus {
-    ACTIVE
-    INACTIVE
-    PAST_DUE
-    CANCELED
-    TRIALING
+  ACTIVE
+  INACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
 }
